@@ -1,0 +1,16 @@
+{
+    "name": "atanamo/php-codeshift",
+    "description": "A PHP code transformation toolkit based on 'PHP-Parser'",
+    "keywords": ["php", "parser", "codemod", "transform", "ast"],
+    "type": "library",
+    "authors": [
+        {
+            "name": "Atanamo",
+            "homepage": "https://gitlab.com/atanamo"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "nikic/php-parser": "^4.0"
+    }
+}

@@ -1,0 +1,20 @@
+
+# OS generated files #
+######################
+
+.DS_Store*
+ehthumbs.db
+Thumbs.db
+*/Thumbs.db
+Icon?
+!icons/
+
+Desktop.ini
+**/Desktop.ini
+*~
+
+# Other stuff #
+###############
+
+vendor/
+

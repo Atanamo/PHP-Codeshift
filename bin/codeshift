@@ -8,10 +8,6 @@ foreach ([__DIR__.'/../../../autoload.php', __DIR__.'/../vendor/autoload.php'] a
     }
 }
 
-if (!class_exists('Codeshift\CodeTransformer')) {
-    require_once __DIR__.'/../src/CodeTransformer.php';
-}
-
 
 function setupCodeTransformer($codemodFilePath) {
     $oTransformer = new Codeshift\CodeTransformer();
@@ -47,7 +43,7 @@ function setupCodeTransformer($codemodFilePath) {
 }
 
 function dumpFileAST($filePath, $outputPath=null) {
-    $oTransformer = new Codeshift\CodeTransformer();
+    $oTransformer = new \Codeshift\CodeTransformer();
     $astPrint = $oTransformer->dumpFileAST($filePath, $outputPath);
 
     if (!$outputPath) {

@@ -2,8 +2,8 @@
 
 namespace Codeshift;
 
-use PhpParser\{Lexer, NodeDumper, NodeFinder, NodeTraverser, NodeVisitor, Parser, ParserFactory, PrettyPrinter};
-use PhpParser\Error as PhpParserError;
+use \PhpParser\{Lexer, NodeDumper, NodeFinder, NodeTraverser, NodeVisitor, Parser, ParserFactory, PrettyPrinter};
+use \PhpParser\Error as PhpParserError;
 
 
 class CodeTransformer {

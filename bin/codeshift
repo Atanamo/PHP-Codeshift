@@ -9,37 +9,15 @@ foreach ([__DIR__.'/../../../autoload.php', __DIR__.'/../vendor/autoload.php'] a
 }
 
 
-function setupCodeTransformer($codemodFilePath) {
-    $oTransformer = new Codeshift\CodeTransformer();
-
-    // Import codemod file
-    if (file_exists($codemodFilePath)) {
-        require $codemodFilePath;
+function transformCode($codemodPaths, $srcPath, $outPath, $ignorePaths) {
+    try {
+        $oRunner = new \Codeshift\CodemodRunner();
+        $oRunner->addCodemods($codemodPaths);
+        $oRunner->execute($srcPath, $outPath, $ignorePaths);
     }
-    else {
-        die('Could not find codemod "'.$codemodFileName.'"'."\n");
+    catch (Exception $ex) {
+        die("Error!\n{$ex->getMessage()}\n");
     }
-
-    // Register visitors of codemod file
-    if (function_exists('getModificationVisitors')) {
-        try {
-            $visitors = getModificationVisitors();  //To be implemented by codemod file
-            $oTransformer->addVisitors($visitors);
-        }
-        catch(Exception $ex) {
-            die('Could not register visitors of codemod:'."\n".$ex->getMessage()."\n");
-        }
-        catch(Error $ex) {
-            die('Implementation of codemod insufficient:'."\n".$ex->getMessage()."\n");
-        }
-    }
-
-    // Set function for manual transforms
-    if (function_exists('getManuallyTransformedStatements')) {
-        $oTransformer->setManualTransformFunction(getManuallyTransformedStatements);
-    }
-
-    return $oTransformer;
 }
 
 function dumpFileAST($filePath, $outputPath=null) {
@@ -81,8 +59,7 @@ elseif (isset($optionsMap['mod']) AND isset($optionsMap['src'])) {
     $outPath = (isset($optionsMap['out']) ? $optionsMap['out'] : null);
     $ignorePaths = (isset($optionsMap['ignore']) ? explode(',', $optionsMap['ignore']) : []);
 
-    $oTransformer = setupCodeTransformer($codemodPath);
-    $oTransformer->runOnPath($srcPath, $outPath, $ignorePaths);
+    transformCode([$codemodPath], $srcPath, $outPath, $ignorePaths);
 }
 elseif (isset($optionsMap['ast'])) {
     dumpFileAST($optionsMap['ast'], $optionsMap['out']);
@@ -90,4 +67,5 @@ elseif (isset($optionsMap['ast'])) {
 else {
     die('Nothing to do, see --help'."\n");
 }
+
 

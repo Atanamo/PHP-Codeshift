@@ -49,6 +49,11 @@ class CodeTransformer {
         $this->hasCustomVisitors = true;
     }
 
+    public function clearVisitors() {
+        $this->oCustomTraverser = new NodeTraverser();
+        $this->hasCustomVisitors = false;
+    }
+
     public function setManualTransformFunction($func) {
         $this->manualTransformFunc = $func;
     }
@@ -68,12 +73,12 @@ class CodeTransformer {
             }
 
             // May transform manually
-            if ($this->manualTransformFunc) {
+            if (is_callable($this->manualTransformFunc)) {
                 try {
                     $func = $this->manualTransformFunc;
                     $newStmts = $func($newStmts, $this->oNodeFinder);
                 }
-                catch(Exception $e) {
+                catch (Exception $e) {
                     echo 'Failed to call manual transform function: ', $e->getMessage();
                 }
             }
@@ -82,7 +87,7 @@ class CodeTransformer {
 
             return $newCode;
         }
-        catch(PhpParserError $e) {
+        catch (PhpParserError $e) {
             echo 'Parse error: ', $e->getMessage();
         }
 
@@ -109,7 +114,7 @@ class CodeTransformer {
             echo "  Modified $filePath\n";
         }
 
-        return $outputCode;
+        return $outputFilePath;
     }
 
     public function runOnDirectory($dirPath, $outputDirPath=null, $ignorePaths=[]) {
@@ -145,15 +150,17 @@ class CodeTransformer {
                 }
             }
         }
+
+        return $outputDirPath;
     }
 
     public function runOnPath($path, $outputPath=null, $ignorePaths=[]) {
         $path = realpath($path);
 
         if (is_dir($path)) {
-            $this->runOnDirectory($path, $outputPath, $ignorePaths);
+            return $this->runOnDirectory($path, $outputPath, $ignorePaths);
         } else {
-            $this->runOnFile($path, $outputPath);
+            return $this->runOnFile($path, $outputPath);
         }
     }
 
@@ -165,7 +172,7 @@ class CodeTransformer {
 
             return $dumper->dump($ast);
         }
-        catch(PhpParserError $e) {
+        catch (PhpParserError $e) {
             echo 'Parse error: ', $e->getMessage();
         }
 

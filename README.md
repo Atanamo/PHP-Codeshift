@@ -2,7 +2,7 @@
 PHP-Codeshift
 =============
 
-PHP-Codeshift* is a lightweight wrapper for the excellent library [PHP-Parser](https://github.com/nikic/PHP-Parser).\
+PHP-Codeshift* is a lightweight wrapper for the excellent library [PHP-Parser](https://github.com/nikic/PHP-Parser).  
 It mainly provides an easy-to-use API for running own codemod definition files on multiple PHP source files.
 
 \* Yes, the name is totally stolen from project "[jscodeshift](https://github.com/facebook/jscodeshift)" ;-)
@@ -26,6 +26,7 @@ Features
     * Transforming sources in a directory tree using a codemod
 * Clear API for writing a codemod
 
-\
-\
+.    
+.    
+.    
 More to come...

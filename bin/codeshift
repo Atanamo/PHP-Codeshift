@@ -1,0 +1,97 @@
+#!/usr/bin/env php
+<?php
+
+foreach ([__DIR__.'/../../../autoload.php', __DIR__.'/../vendor/autoload.php'] as $file) {
+    if (file_exists($file)) {
+        require_once $file;
+        break;
+    }
+}
+
+if (!class_exists('Codeshift\CodeTransformer')) {
+    require_once __DIR__.'/../src/CodeTransformer.php';
+}
+
+
+function setupCodeTransformer($codemodFilePath) {
+    $oTransformer = new Codeshift\CodeTransformer();
+
+    // Import codemod file
+    if (file_exists($codemodFilePath)) {
+        require $codemodFilePath;
+    }
+    else {
+        die('Could not find codemod "'.$codemodFileName.'"'."\n");
+    }
+
+    // Register visitors of codemod file
+    if (function_exists('getModificationVisitors')) {
+        try {
+            $visitors = getModificationVisitors();  //To be implemented by codemod file
+            $oTransformer->addVisitors($visitors);
+        }
+        catch(Exception $ex) {
+            die('Could not register visitors of codemod:'."\n".$ex->getMessage()."\n");
+        }
+        catch(Error $ex) {
+            die('Implementation of codemod insufficient:'."\n".$ex->getMessage()."\n");
+        }
+    }
+
+    // Set function for manual transforms
+    if (function_exists('getManuallyTransformedStatements')) {
+        $oTransformer->setManualTransformFunction(getManuallyTransformedStatements);
+    }
+
+    return $oTransformer;
+}
+
+function dumpFileAST($filePath, $outputPath=null) {
+    $oTransformer = new Codeshift\CodeTransformer();
+    $astPrint = $oTransformer->dumpFileAST($filePath, $outputPath);
+
+    if (!$outputPath) {
+        echo $astPrint;
+    }
+}
+
+
+// Process command-line arguments
+$optionsMap = getopt('', ['help', 'ast:', 'mod:', 'src:', 'out:', 'ignore:']);
+
+if (isset($optionsMap['help'])) {
+    echo "\n";
+    echo "Usage:\n";
+    echo "  codeshift [options]\n";
+    echo "\n";
+    echo "Options (equal signs can be omitted):\n";
+    echo "  --help              Print this help\n";
+    echo "  --ast=<path>        Full path of a file to create the AST for\n";
+    echo "  --mod=<path>        Full path of a codemod file to execute\n";
+    echo "  --src=<path>        Full path of a file or directory to run the codemod on\n";
+    echo "  --out=<path>        Optional full path of a file or directory to write the results to\n";
+    echo "  --ignore=<paths>    Optional comma-separated list of paths to ignore on directory traversing\n";
+    echo "\n";
+    echo "Example to transform code:\n";
+    echo "  codeshift --mod=/my/codemod.php --src=/my/code/dir\n";
+    echo "\n";
+    echo "Example to print ast:\n";
+    echo "  codeshift --ast=/my/code/file.php --out=/my/output.txt\n";
+    echo "\n";
+}
+elseif (isset($optionsMap['mod']) AND isset($optionsMap['src'])) {
+    $codemodPath = $optionsMap['mod'];
+    $srcPath = realpath($optionsMap['src']);
+    $outPath = (isset($optionsMap['out']) ? $optionsMap['out'] : null);
+    $ignorePaths = (isset($optionsMap['ignore']) ? explode(',', $optionsMap['ignore']) : []);
+
+    $oTransformer = setupCodeTransformer($codemodPath);
+    $oTransformer->runOnPath($srcPath, $outPath, $ignorePaths);
+}
+elseif (isset($optionsMap['ast'])) {
+    dumpFileAST($optionsMap['ast'], $optionsMap['out']);
+}
+else {
+    die('Nothing to do, see --help'."\n");
+}
+

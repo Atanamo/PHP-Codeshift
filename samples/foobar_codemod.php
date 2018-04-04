@@ -1,5 +1,6 @@
 <?php
 
+use Codeshift\AbstractCodemod;
 use PhpParser\{Node, NodeFinder, NodeVisitorAbstract};
 
 
@@ -14,23 +15,46 @@ class FooReplaceVisitor extends NodeVisitorAbstract {
 }
 
 
-// Interface function for transformations using visitors
-function getModificationVisitors() {
-    $visitor = new FooReplaceVisitor();
+class FoobarCodemod extends AbstractCodemod {
 
-    return [$visitor];
-}
+    // Example: Traverse with visitor "FooReplaceVisitor"
+    // @override
+    public function init() {
+        // Init the example visitor
+        $visitor = new FooReplaceVisitor();
 
-// Interface function for simple manual transformations
-function getManuallyTransformedStatements($statements, NodeFinder $nodeFinder) {
-    // Example: Rename first declared function to "bar"
-    $functionNode = $nodeFinder->findFirstInstanceOf($statements, Node\Stmt\Function_::class);
-
-    if ($functionNode != null) {
-        $functionNode->name = new Node\Identifier('bar');
+        // Schedule a traversal run on the code, that uses the visitor
+        $this->addTraversalTransform($visitor);
     }
 
-    return $statements;
-}
+    // Example: Get information about current transformed code/file.
+    // @override
+    public function beforeTraversalTransform(array $statements): array {
+        $infoMap = $this->getCodeInformation();
+
+        echo "\n";
+        echo "Will now transform: '{$infoMap['inputFile']}'\n";
+        echo "Will output to: '{$infoMap['outputFile']}'\n";
+        echo "\n";
+
+        return $statements;
+    }
+
+    // Example: Rename first declared function to "bar"
+    // @override
+    public function afterTraversalTransform(array $statements): array {
+        $nodeFinder = new NodeFinder();
+        $functionNode = $nodeFinder->findFirstInstanceOf($statements, Node\Stmt\Function_::class);
+
+        if ($functionNode != null) {
+            $functionNode->name = new Node\Identifier('bar');
+        }
+
+        return $statements;
+    }
+
+};
 
 
+// Important: Export the codemod class
+return FoobarCodemod;

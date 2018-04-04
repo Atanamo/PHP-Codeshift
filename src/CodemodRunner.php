@@ -68,34 +68,35 @@ class CodemodRunner {
      * @return CodeTransformer
      */
     public function loadCodemodToTransformer($codemodFilePath) {
+        $codemodClass = null;
+
+        // Load codemod class
         if (file_exists($codemodFilePath)) {
-            require $codemodFilePath;
-        }
-        else {
-            throw new FileNotFoundException("Failed to load codemod \"{$codemodFilePath}\"");
-        }
-
-        // Clear last codemod
-        $this->oTransformer->clearVisitors();
-        $this->oTransformer->setManualTransformFunction(null);
-
-        // Register visitors of codemod file
-        if (function_exists('getModificationVisitors')) {
             try {
-                $visitors = getModificationVisitors();  //To be implemented by codemod file
-                $this->oTransformer->addVisitors($visitors);
-            }
-            catch (Exception $ex) {
-                throw new CorruptCodemodException("Could not register visitors of codemod: {$ex->getMessage()}", null, $ex);
+                $codemodClass = require $codemodFilePath;
             }
             catch (Error $ex) {
-                throw new CorruptCodemodException("Insufficient codemod implementation: {$ex->getMessage()}", null, $ex);
+                throw new CorruptCodemodException("Failed to load codemod: {$ex->getMessage()}", null, $ex);
             }
         }
+        else {
+            throw new FileNotFoundException("Could not find codemod \"{$codemodFilePath}\"");
+        }
 
-        // Set function for manual transforms
-        if (function_exists('getManuallyTransformedStatements')) {
-            $this->oTransformer->setManualTransformFunction(getManuallyTransformedStatements);
+        // Init the codemod
+        try {
+            $oCodemod = new $codemodClass();
+        }
+        catch (Exception $ex) {
+            throw new CorruptCodemodException("Failed to init codemod: {$ex->getMessage()}", null, $ex);
+        }
+
+        // Prepare the transformer
+        try {
+            $this->oTransformer->setCodemod($oCodemod);
+        }
+        catch (InvalidArgumentException $ex) {
+            throw new CorruptCodemodException("Invalid type of codemod class: {$ex->getMessage()}", null, $ex);
         }
 
         return $this->oTransformer;

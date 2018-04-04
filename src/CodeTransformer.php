@@ -2,7 +2,7 @@
 
 namespace Codeshift;
 
-use \PhpParser\{Lexer, NodeDumper, NodeFinder, NodeTraverser, NodeVisitor, Parser, ParserFactory, PrettyPrinter};
+use \PhpParser\{Lexer, NodeDumper, NodeTraverser, NodeVisitor, Parser, ParserFactory, PrettyPrinter};
 use \PhpParser\Error as PhpParserError;
 
 
@@ -10,11 +10,8 @@ class CodeTransformer {
     private $oLexer;
     private $oParser;
     private $oCloneTraverser;
-    private $oCustomTraverser;
-    private $oNodeFinder;
     private $oPrinter;
-    private $manualTransformFunc = null;
-    private $hasCustomVisitors = false;
+    private $oCodemod;
 
     public function __construct() {
         $this->oLexer = new Lexer\Emulative([
@@ -31,35 +28,14 @@ class CodeTransformer {
         $this->oCloneTraverser = new NodeTraverser();
         $this->oCloneTraverser->addVisitor(new NodeVisitor\CloningVisitor());
 
-        $this->oCustomTraverser = new NodeTraverser();
-        $this->oNodeFinder = new NodeFinder();
-
         $this->oPrinter = new PrettyPrinter\Standard();
     }
 
-    public function addVisitor($oVisitor) {
-        $this->oCustomTraverser->addVisitor($oVisitor);
-        $this->hasCustomVisitors = true;
+    public function setCodemod(AbstractCodemod $oCodemod) {
+        $this->oCodemod = $oCodemod;
     }
 
-    public function addVisitors(array $visitors) {
-        foreach ($visitors as $oVisitor) {
-            $this->oCustomTraverser->addVisitor($oVisitor);
-        }
-        $this->hasCustomVisitors = true;
-    }
-
-    public function clearVisitors() {
-        $this->oCustomTraverser = new NodeTraverser();
-        $this->hasCustomVisitors = false;
-    }
-
-    public function setManualTransformFunction($func) {
-        $this->manualTransformFunc = $func;
-    }
-
-
-    public function runOnCode($codeString) {
+    public function runOnCode($codeString, $codeInfoMap=null) {
         try {
             $oldStmts = $this->oParser->parse($codeString);
             $oldTokens = $this->oLexer->getTokens();
@@ -67,19 +43,16 @@ class CodeTransformer {
             // Set references to old statements
             $newStmts = $this->oCloneTraverser->traverse($oldStmts);
 
-            // May transform by custom traversing
-            if ($this->hasCustomVisitors) {
-                $newStmts = $this->oCustomTraverser->traverse($newStmts);
-            }
+            // Set additional info to codemod
+            $this->oCodemod->setCodeInformation($codeInfoMap);
 
-            // May transform manually
-            if (is_callable($this->manualTransformFunc)) {
+            // Transform using the codemod
+            if ($this->oCodemod != null) {
                 try {
-                    $func = $this->manualTransformFunc;
-                    $newStmts = $func($newStmts, $this->oNodeFinder);
+                    $newStmts = $this->oCodemod->transformStatements($newStmts);
                 }
                 catch (Exception $e) {
-                    echo 'Failed to call manual transform function: ', $e->getMessage();
+                    echo 'Failed to call transform function: ', $e->getMessage();  // TODO: Exception
                 }
             }
 
@@ -101,7 +74,10 @@ class CodeTransformer {
 
         $inputCode = file_get_contents($filePath);
 
-        $outputCode = $this->runOnCode($inputCode);
+        $outputCode = $this->runOnCode($inputCode, [
+            'inputFile' => $filePath,
+            'outputFile' => $outputFilePath,
+        ]);
 
         file_put_contents($outputFilePath, $outputCode);
 

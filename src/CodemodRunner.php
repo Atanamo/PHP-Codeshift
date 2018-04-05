@@ -72,11 +72,10 @@ class CodemodRunner {
 
         // Load codemod class
         if (file_exists($codemodFilePath)) {
-            try {
-                $codemodClass = require $codemodFilePath;
-            }
-            catch (Error $ex) {
-                throw new CorruptCodemodException("Failed to load codemod: {$ex->getMessage()}", null, $ex);
+            $codemodClass = require $codemodFilePath;
+
+            if (!class_exists($codemodClass)) {
+                throw new CorruptCodemodException("Missing exported class of codemod: \"{$codemodFilePath}\"");
             }
         }
         else {
@@ -92,11 +91,11 @@ class CodemodRunner {
         }
 
         // Prepare the transformer
-        try {
+        if (is_subclass_of($oCodemod, '\Codeshift\AbstractCodemod')) {
             $this->oTransformer->setCodemod($oCodemod);
         }
-        catch (InvalidArgumentException $ex) {
-            throw new CorruptCodemodException("Invalid type of codemod class: {$ex->getMessage()}", null, $ex);
+        else {
+            throw new CorruptCodemodException("Invalid class type of codemod: \"{$codemodFilePath}\"");
         }
 
         return $this->oTransformer;

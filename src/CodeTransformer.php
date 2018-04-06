@@ -43,11 +43,12 @@ class CodeTransformer {
             // Set references to old statements
             $newStmts = $this->oCloneTraverser->traverse($oldStmts);
 
-            // Set additional info to codemod
-            $this->oCodemod->setCodeInformation($codeInfoMap);
-
-            // Transform using the codemod
+            // Process the codemod
             if ($this->oCodemod != null) {
+                // Set additional info to codemod
+                $this->oCodemod->setCodeInformation($codeInfoMap);
+
+                // Transform using the codemod
                 try {
                     $newStmts = $this->oCodemod->transformStatements($newStmts);
                 }
@@ -56,6 +57,7 @@ class CodeTransformer {
                 }
             }
 
+            // Write back code changes
             $newCode = $this->oPrinter->printFormatPreserving($newStmts, $oldStmts, $oldTokens);
 
             return $newCode;

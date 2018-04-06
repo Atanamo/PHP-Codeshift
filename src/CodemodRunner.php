@@ -65,7 +65,7 @@ class CodemodRunner {
      * @param string $codemodFilePath Path of codemod file
      * @throws FileNotFoundException If the codemod is not found
      * @throws CorruptCodemodException If the codemod cannot be used for the preparation
-     * @return CodeTransformer
+     * @return CodeTransformer The final prepared code transformer
      */
     public function loadCodemodToTransformer($codemodFilePath) {
         $codemodClass = null;
@@ -119,13 +119,14 @@ class CodemodRunner {
      * @return void
      */
     public function execute($targetPath, $outputPath=null, array $ignorePaths=[]) {
+        $absoluteIgnorePaths = self::resolveRelativePaths($ignorePaths, $targetPath);
         $currTargetPath = $targetPath;
         $currOutputPath = $outputPath;
 
         foreach ($this->codemodPaths as $codemodFilePath) {
             $this->oTransformer = $this->loadCodemodToTransformer($codemodFilePath);
 
-            $resultOutputPath = $this->oTransformer->runOnPath($currTargetPath, $currOutputPath, $ignorePaths);
+            $resultOutputPath = $this->oTransformer->runOnPath($currTargetPath, $currOutputPath, $absoluteIgnorePaths);
 
             // Execute further codemods on output path
             if($outputPath != null) {
@@ -135,5 +136,42 @@ class CodemodRunner {
         }
     }
 
+    /**
+     * Tries to resolve the given list of paths by using the given target as root.
+     * The target root must exist.
+     * Paths are only changed, if they specify existing files or directories.
+     *
+     * @param array $paths List of paths to resolve
+     * @param string $targetRootPath Path to use as root directory for relative paths
+     * @return array The resulting list of paths
+     */
+    public static function resolveRelativePaths(array $paths, $targetRootPath) {
+        // If root path is file, use its directory
+        if (!is_dir($targetRootPath) AND file_exists($targetRootPath)) {
+            $targetRootPath = dirname($targetRootPath);
+        }
+
+        $targetRootPath = realpath($targetRootPath);
+
+        // Try to resolve relative paths
+        if ($targetRootPath !== false) {
+            foreach ($paths as &$wildPath) {
+                $absolutePath = $wildPath;
+
+                if (in_array(substr($wildPath, 0, 2), ['./', '.\\', '.'.DIRECTORY_SEPARATOR])) {
+                    $absolutePath = $targetRootPath.DIRECTORY_SEPARATOR.$wildPath;
+                }
+
+                $realPath = realpath($absolutePath);
+
+                // Only change input path, if it was resolved successfully
+                if ($realPath !== false) {
+                    $wildPath = $realPath;
+                }
+            }
+        }
+
+        return $paths;
+    }
 }
 

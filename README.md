@@ -14,7 +14,7 @@ Requirements
 Due to dependencies to [PHP-Parser](https://github.com/nikic/PHP-Parser), following PHP versions are required:
 
 * Running codeshift: PHP 7.0 or higher
-* Code to transform: PHP 5.2 or higher
+* Target code to be transformed: PHP 5.2 or higher
 
 
 Features

@@ -86,7 +86,7 @@ class CodeTransformer {
 
         $inputFilePath = realpath($filePath);
         $outputFilePath = $outputPath ?: $inputFilePath;
-        $outputFilePath = self::getSolidOutputPathForFile($outputPath, $inputFilePath);
+        $outputFilePath = self::getSolidOutputPathForFile($outputFilePath, $inputFilePath);
 
         $inputCode = file_get_contents($inputFilePath);
 

@@ -50,17 +50,7 @@ class CodeTransformer {
                 $this->oCodemod->setCodeInformation($codeInfoMap);
 
                 // Transform using the codemod
-                try {
-                    $newStmts = $this->oCodemod->transformStatements($newStmts);
-                }
-                catch (Exception $ex) {
-                    // TODO: This catch seems to be ignored completely...
-                    if (isset($codeInfoMap['inputFile'])) {
-                        throw new CorruptCodemodException("Codemod failed to transform file \"{$codeInfoMap['inputFile']}\" :: {$ex->getMessage()}", null, $ex);
-                    } else {
-                        throw new CorruptCodemodException("Codemod failed to transform statements :: {$ex->getMessage()}", null, $ex);
-                    }
-                }
+                $newStmts = $this->oCodemod->transformStatements($newStmts);
             }
 
             // Write back code changes

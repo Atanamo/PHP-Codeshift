@@ -80,14 +80,18 @@ class CodeTransformer {
     }
 
     public function runOnFile($filePath, $outputPath=null) {
-        $filePath = realpath($filePath);
-        $outputPath = $outputPath ?: $filePath;
-        $outputFilePath = self::getSolidOutputPathForFile($outputPath, $filePath);
+        if (!file_exists($filePath) OR !is_file($filePath)) {
+            throw new FileNotFoundException("Could not find file \"{$filePath}\"");
+        }
 
-        $inputCode = file_get_contents($filePath);
+        $inputFilePath = realpath($filePath);
+        $outputFilePath = $outputPath ?: $inputFilePath;
+        $outputFilePath = self::getSolidOutputPathForFile($outputPath, $inputFilePath);
+
+        $inputCode = file_get_contents($inputFilePath);
 
         $outputCode = $this->runOnCode($inputCode, [
-            'inputFile' => $filePath,
+            'inputFile' => $inputFilePath,
             'outputFile' => $outputFilePath,
         ]);
 
@@ -96,16 +100,20 @@ class CodeTransformer {
         // Print info
         $outputFilePath = realpath($outputFilePath);
 
-        if ($filePath != $outputFilePath) {
-            echo "  $filePath --> $outputFilePath\n";
+        if ($inputFilePath != $outputFilePath) {
+            echo "  $inputFilePath --> $outputFilePath\n";
         } else {
-            echo "  Modified $filePath\n";
+            echo "  Modified $inputFilePath\n";
         }
 
         return $outputFilePath;
     }
 
     public function runOnDirectory($dirPath, $outputDirPath=null, $ignorePaths=[]) {
+        if (!file_exists($dirPath) OR !is_dir($dirPath)) {
+            throw new FileNotFoundException("Could not find directory \"{$dirPath}\"");
+        }
+
         $outputDirPath = $outputDirPath ?: $dirPath;
         $outputDirPath = self::createMissingDirectories($outputDirPath);
 
@@ -143,8 +151,6 @@ class CodeTransformer {
     }
 
     public function runOnPath($path, $outputPath=null, $ignorePaths=[]) {
-        $path = realpath($path);
-
         if (is_dir($path)) {
             return $this->runOnDirectory($path, $outputPath, $ignorePaths);
         } else {
@@ -172,15 +178,23 @@ class CodeTransformer {
     }
 
     public function dumpFileAST($filePath, $outputPath=null) {
+        // Check input file
+        if (!file_exists($filePath) OR !is_file($filePath)) {
+            throw new FileNotFoundException("Could not find file \"{$filePath}\"");
+        }
+
+        // Handle arguments
+        $inputFilePath = realpath($filePath);
         $outputFilePath = null;
 
         if ($outputPath) {
-            $outputFilePath = self::getSolidOutputPathForFile($outputPath, $filePath);
+            $outputFilePath = self::getSolidOutputPathForFile($outputPath, $inputFilePath);
         }
 
-        $codeString = file_get_contents($filePath);
+        // Dump the file AST
+        $codeString = file_get_contents($inputFilePath);
         $astPrint = $this->dumpCodeAST($codeString, [
-            'inputFile' => $filePath,
+            'inputFile' => $inputFilePath,
             'outputFile' => $outputFilePath,
         ]);
 

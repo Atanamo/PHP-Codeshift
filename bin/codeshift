@@ -61,7 +61,7 @@ if (isset($optionsMap['help'])) {
 }
 elseif (isset($optionsMap['mod']) AND isset($optionsMap['src'])) {
     $codemodPath = $optionsMap['mod'];
-    $srcPath = realpath($optionsMap['src']);
+    $srcPath = $optionsMap['src'];
     $outPath = (isset($optionsMap['out']) ? $optionsMap['out'] : null);
     $ignorePaths = (isset($optionsMap['ignore']) ? explode(',', $optionsMap['ignore']) : []);
 

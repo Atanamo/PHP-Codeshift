@@ -2,6 +2,7 @@
 
 namespace Codeshift;
 
+use \Codeshift\Exceptions\{FileNotFoundException, CorruptCodemodException, CodeParsingException};
 use \PhpParser\{Lexer, NodeDumper, NodeTraverser, NodeVisitor, Parser, ParserFactory, PrettyPrinter};
 use \PhpParser\Error as PhpParserError;
 
@@ -52,8 +53,13 @@ class CodeTransformer {
                 try {
                     $newStmts = $this->oCodemod->transformStatements($newStmts);
                 }
-                catch (Exception $e) {
-                    echo 'Failed to call transform function: ', $e->getMessage();  // TODO: Exception
+                catch (Exception $ex) {
+                    // TODO: This catch seems to be ignored completely...
+                    if (isset($codeInfoMap['inputFile'])) {
+                        throw new CorruptCodemodException("Codemod failed to transform file \"{$codeInfoMap['inputFile']}\" :: {$ex->getMessage()}", null, $ex);
+                    } else {
+                        throw new CorruptCodemodException("Codemod failed to transform statements :: {$ex->getMessage()}", null, $ex);
+                    }
                 }
             }
 
@@ -62,8 +68,12 @@ class CodeTransformer {
 
             return $newCode;
         }
-        catch (PhpParserError $e) {
-            echo 'Parse error: ', $e->getMessage();
+        catch (PhpParserError $ex) {
+            if (isset($codeInfoMap['inputFile'])) {
+                throw new CodeParsingException("Failed to parse file \"{$codeInfoMap['inputFile']}\" :: {$ex->getMessage()}", null, $ex);
+            } else {
+                throw new CodeParsingException("Parse error :: {$ex->getMessage()}", null, $ex);
+            }
         }
 
         return $codeString;
@@ -143,26 +153,38 @@ class CodeTransformer {
     }
 
 
-    public function dumpCodeAST($codeString) {
+    public function dumpCodeAST($codeString, $codeInfoMap=null) {
         try {
             $ast = $this->oParser->parse($codeString);
             $dumper = new NodeDumper();
 
             return $dumper->dump($ast);
         }
-        catch (PhpParserError $e) {
-            echo 'Parse error: ', $e->getMessage();
+        catch (PhpParserError $ex) {
+            if (isset($codeInfoMap['inputFile'])) {
+                throw new CodeParsingException("Failed to parse file \"{$codeInfoMap['inputFile']}\" :: {$ex->getMessage()}", null, $ex);
+            } else {
+                throw new CodeParsingException("Parse error :: {$ex->getMessage()}", null, $ex);
+            }
         }
 
         return '';
     }
 
     public function dumpFileAST($filePath, $outputPath=null) {
-        $codeString = file_get_contents($filePath);
-        $astPrint = $this->dumpCodeAST($codeString);
+        $outputFilePath = null;
 
         if ($outputPath) {
             $outputFilePath = self::getSolidOutputPathForFile($outputPath, $filePath);
+        }
+
+        $codeString = file_get_contents($filePath);
+        $astPrint = $this->dumpCodeAST($codeString, [
+            'inputFile' => $filePath,
+            'outputFile' => $outputFilePath,
+        ]);
+
+        if ($outputPath) {
             file_put_contents($outputFilePath, $astPrint);
         }
 

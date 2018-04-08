@@ -87,7 +87,7 @@ class CodemodRunner {
             $oCodemod = new $codemodClass();
         }
         catch (Exception $ex) {
-            throw new CorruptCodemodException("Failed to init codemod: {$ex->getMessage()}", null, $ex);
+            throw new CorruptCodemodException("Failed to init codemod \"{$codemodFilePath}\" :: {$ex->getMessage()}", null, $ex);
         }
 
         // Prepare the transformer

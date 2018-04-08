@@ -21,11 +21,16 @@ function transformCode($codemodPaths, $srcPath, $outPath, $ignorePaths) {
 }
 
 function dumpFileAST($filePath, $outputPath=null) {
-    $oTransformer = new \Codeshift\CodeTransformer();
-    $astPrint = $oTransformer->dumpFileAST($filePath, $outputPath);
+    try {
+        $oTransformer = new \Codeshift\CodeTransformer();
+        $astPrint = $oTransformer->dumpFileAST($filePath, $outputPath);
 
-    if (!$outputPath) {
-        echo $astPrint;
+        if (!$outputPath) {
+            echo $astPrint;
+        }
+    }
+    catch (Exception $ex) {
+        die("Error!\n{$ex->getMessage()}\n");
     }
 }
 

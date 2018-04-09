@@ -32,10 +32,11 @@ class FoobarCodemod extends AbstractCodemod {
     public function beforeTraversalTransform(array $statements): array {
         $infoMap = $this->getCodeInformation();
 
-        echo "\n";
-        echo "Will now transform: '{$infoMap['inputFile']}'\n";
-        echo "Will output to: '{$infoMap['outputFile']}'\n";
-        echo "\n";
+        $tracer = $this->getTracer();
+        $tracer->writeLine();
+        $tracer->inform("Will now transform: '{$infoMap['inputFile']}'");
+        $tracer->inform("Will output to: '{$infoMap['outputFile']}'");
+        $tracer->writeLine();
 
         return $statements;
     }

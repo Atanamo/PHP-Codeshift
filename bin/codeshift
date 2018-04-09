@@ -13,10 +13,10 @@ function transformCode($codemodPaths, $srcPath, $outPath, $ignorePaths) {
     try {
         $oRunner = new \Codeshift\CodemodRunner();
         $oRunner->addCodemods($codemodPaths);
-        $oRunner->execute($srcPath, $outPath, $ignorePaths);
+        $oRunner->executeSecured($srcPath, $outPath, $ignorePaths);
     }
-    catch (Exception $ex) {
-        die("Error!\n{$ex->getMessage()}\n");
+    catch (\Exception $ex) {
+        die("\nFatal Error!\n{$ex->getMessage()}\n");
     }
 }
 
@@ -29,8 +29,8 @@ function dumpFileAST($filePath, $outputPath=null) {
             echo $astPrint;
         }
     }
-    catch (Exception $ex) {
-        die("Error!\n{$ex->getMessage()}\n");
+    catch (\Exception $ex) {
+        die("\nFatal Error!\n{$ex->getMessage()}\n");
     }
 }
 

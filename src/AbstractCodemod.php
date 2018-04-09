@@ -6,10 +6,12 @@ use \PhpParser\{NodeFinder, NodeTraverser, NodeVisitor};
 
 
 abstract class AbstractCodemod {
+    private $oTracer;
     private $traversers = [];
     private $codeInfoMap = [];
 
-    final public function __construct() {
+    final public function __construct(AbstractTracer $oTracer=null) {
+        $this->oTracer = $oTracer;
         $this->init();
     }
 
@@ -37,6 +39,15 @@ abstract class AbstractCodemod {
         return $this->codeInfoMap;
     }
 
+    /**
+     * Returns the tracer the codemod was created with or null if there is no tracer.
+     * If the codemod is executed by using the `CodemodRunner`, the tracer is always shared by it.
+     *
+     * @return AbstractTracer|null
+     */
+    final public function getTracer() {
+        return $this->oTracer;
+    }
 
 	final protected function createNodeTraverser(NodeVisitor ...$visitors) {
 		$oTraverser = new NodeTraverser();

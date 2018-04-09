@@ -2,8 +2,7 @@
 
 namespace Codeshift;
 
-use \Codeshift\CodeTransformer;
-use \Codeshift\Exceptions\{FileNotFoundException, CorruptCodemodException};
+use \Codeshift\Exceptions\{FileNotFoundException, CorruptCodemodException, CodeParsingException};
 
 
 /**
@@ -11,17 +10,22 @@ use \Codeshift\Exceptions\{FileNotFoundException, CorruptCodemodException};
  * on a source file or directory.
  */
 class CodemodRunner {
+    private $oTracer;
     private $oTransformer;
     private $codemodPaths = [];
 
     /**
      * Constructor.
-     * Optionally takes an initial codemod to be added to execution schedule.
+     * Optionally takes an initial codemod to be added to execution schedule
+     * and a custom tracer to be used for protocolling.
+     * By default, the `SimpleOutputTracer` is used.
      *
      * @param string $codemodFilePath Optional path of initial codemod file
+     * @param AbstractTracer $oTracer Optional custom tracer to use
      */
-    public function __construct($codemodFilePath=null) {
-        $this->oTransformer = new CodeTransformer();
+    public function __construct($codemodFilePath=null, AbstractTracer $oTracer=null) {
+        $this->oTracer = $oTracer ?: new SimpleOutputTracer();
+        $this->oTransformer = new CodeTransformer($this->oTracer);
 
         if ($codemodFilePath) {
             $this->addCodemod($codemodFilePath);
@@ -41,7 +45,7 @@ class CodemodRunner {
     /**
      * Adds multiple codemod defintion files to be executed.
      *
-     * @param array $filePaths List of paths of codemod files
+     * @param string[] $filePaths List of paths of codemod files
      * @return void
      */
     public function addCodemods(array $filePaths) {
@@ -84,9 +88,9 @@ class CodemodRunner {
 
         // Init the codemod
         try {
-            $oCodemod = new $codemodClass();
+            $oCodemod = new $codemodClass($this->oTracer);
         }
-        catch (Exception $ex) {
+        catch (\Exception $ex) {
             throw new CorruptCodemodException("Failed to init codemod \"{$codemodFilePath}\" :: {$ex->getMessage()}", null, $ex);
         }
 
@@ -97,6 +101,9 @@ class CodemodRunner {
         else {
             throw new CorruptCodemodException("Invalid class type of codemod: \"{$codemodFilePath}\"");
         }
+
+        // Log loading
+        $this->oTracer->traceCodemodLoaded($oCodemod, realpath($codemodFilePath));
 
         return $this->oTransformer;
     }
@@ -113,9 +120,10 @@ class CodemodRunner {
      *
      * @param string $targetPath Path of the input source file or directory
      * @param string $outputPath Path of the output file or directory
-     * @param array $ignorePaths List of file or directory paths to exclude from transformation
+     * @param string[] $ignorePaths List of file or directory paths to exclude from transformation
      * @throws FileNotFoundException If a codemod is not found
      * @throws CorruptCodemodException If a codemod cannot be interpreted
+     * @throws CodeParsingException If source file could not be parsed
      * @return void
      */
     public function execute($targetPath, $outputPath=null, array $ignorePaths=[]) {
@@ -124,9 +132,9 @@ class CodemodRunner {
         $currOutputPath = $outputPath;
 
         foreach ($this->codemodPaths as $codemodFilePath) {
-            $this->oTransformer = $this->loadCodemodToTransformer($codemodFilePath);
+            $oTransformer = $this->loadCodemodToTransformer($codemodFilePath);
 
-            $resultOutputPath = $this->oTransformer->runOnPath($currTargetPath, $currOutputPath, $absoluteIgnorePaths);
+            $resultOutputPath = $oTransformer->runOnPath($currTargetPath, $currOutputPath, $absoluteIgnorePaths);
 
             // Execute further codemods on output path
             if($outputPath != null) {
@@ -137,13 +145,32 @@ class CodemodRunner {
     }
 
     /**
+     * Calls `execute` within a try-catch block to allow logging exceptions by the tracer.
+     *
+     * @see CodemodRunner::execute()
+     * @param bool $traceStack Set true to log the stack trace of an exception
+     * @return bool Whether or not the execution was completed succesfully
+     */
+    public function executeSecured($targetPath, $outputPath=null, array $ignorePaths=[], $traceStack=false) {
+        try {
+            $this->execute($targetPath, $outputPath, $ignorePaths);
+            return true;
+        }
+        catch (\Exception $ex) {
+            $this->oTracer->traceException($ex, $traceStack);
+        }
+
+        return false;
+    }
+
+    /**
      * Tries to resolve the given list of paths by using the given target as root.
      * The target root must exist.
      * Paths are only changed, if they specify existing files or directories.
      *
-     * @param array $paths List of paths to resolve
+     * @param string[] $paths List of paths to resolve
      * @param string $targetRootPath Path to use as root directory for relative paths
-     * @return array The resulting list of paths
+     * @return string[] The resulting list of paths
      */
     public static function resolveRelativePaths(array $paths, $targetRootPath) {
         // If root path is file, use its directory

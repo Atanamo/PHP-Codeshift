@@ -13,8 +13,12 @@ class CodeTransformer {
     private $oCloneTraverser;
     private $oPrinter;
     private $oCodemod;
+    private $oTracer;
 
-    public function __construct() {
+    public function __construct(AbstractTracer $oTracer=null, AbstractCodemod $oCodemod=null) {
+        $this->oTracer = $oTracer;
+        $this->oCodemod = $oCodemod;
+
         $this->oLexer = new Lexer\Emulative([
             'usedAttributes' => [
                 'comments',
@@ -30,6 +34,10 @@ class CodeTransformer {
         $this->oCloneTraverser->addVisitor(new NodeVisitor\CloningVisitor());
 
         $this->oPrinter = new PrettyPrinter\Standard();
+    }
+
+    public function setTracer(AbstractTracer $oTracer) {
+        $this->oTracer = $oTracer;
     }
 
     public function setCodemod(AbstractCodemod $oCodemod) {
@@ -76,7 +84,7 @@ class CodeTransformer {
 
         $inputFilePath = realpath($filePath);
         $outputFilePath = $outputPath ?: $inputFilePath;
-        $outputFilePath = self::getSolidOutputPathForFile($outputFilePath, $inputFilePath);
+        $outputFilePath = self::getSolidOutputPathForFile($outputFilePath, $inputFilePath, $this->oTracer);
 
         $inputCode = file_get_contents($inputFilePath);
 
@@ -90,10 +98,8 @@ class CodeTransformer {
         // Print info
         $outputFilePath = realpath($outputFilePath);
 
-        if ($inputFilePath != $outputFilePath) {
-            echo "  $inputFilePath --> $outputFilePath\n";
-        } else {
-            echo "  Modified $inputFilePath\n";
+        if ($this->oTracer != null) {
+            $this->oTracer->traceFileTransformation($inputFilePath, $outputFilePath);
         }
 
         return $outputFilePath;
@@ -105,7 +111,7 @@ class CodeTransformer {
         }
 
         $outputDirPath = $outputDirPath ?: $dirPath;
-        $outputDirPath = self::createMissingDirectories($outputDirPath);
+        $outputDirPath = self::createMissingDirectories($outputDirPath, $this->oTracer);
 
         $dirPath = realpath($dirPath);
         $outputDirPath = realpath($outputDirPath);
@@ -178,7 +184,7 @@ class CodeTransformer {
         $outputFilePath = null;
 
         if ($outputPath) {
-            $outputFilePath = self::getSolidOutputPathForFile($outputPath, $inputFilePath);
+            $outputFilePath = self::getSolidOutputPathForFile($outputPath, $inputFilePath, $this->oTracer);
         }
 
         // Dump the file AST
@@ -196,10 +202,13 @@ class CodeTransformer {
     }
 
 
-    private static function createMissingDirectories($dirPath) {
+    private static function createMissingDirectories($dirPath, $oTracer=null) {
         if (!is_dir($dirPath) AND file_exists($dirPath)) {
             $dirPath = $dirPath.'_';
-            echo "Warning: Path of output directory points to existing file! Changing directory to: $dirPath\n";
+
+            if ($oTracer != null) {
+                $oTracer->warn("Path of output directory points to existing file! Changing directory to: \"{$dirPath}\"");
+            }
         }
 
         if (!is_dir($dirPath)) {
@@ -209,15 +218,15 @@ class CodeTransformer {
         return $dirPath;
     }
 
-    private static function getSolidOutputPathForFile($outputPath, $referenceFilePath) {
+    private static function getSolidOutputPathForFile($outputPath, $referenceFilePath, $oTracer=null) {
         if (is_dir($outputPath) OR (!is_file($outputPath) AND !pathinfo($outputPath, PATHINFO_EXTENSION))) {
             // Output path is directory, ensure directories and generate output file name
-            $dirPath = self::createMissingDirectories($outputPath);
+            $dirPath = self::createMissingDirectories($outputPath, $oTracer);
             $outputPath = $dirPath.DIRECTORY_SEPARATOR.basename($referenceFilePath);
         }
         else {
             // Output path is file, just ensure directories
-            $dirPath = self::createMissingDirectories(dirname($outputPath));
+            $dirPath = self::createMissingDirectories(dirname($outputPath), $oTracer);
             $outputPath = $dirPath.DIRECTORY_SEPARATOR.basename($outputPath);
         }
 

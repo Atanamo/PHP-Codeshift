@@ -99,7 +99,7 @@ class CodeTransformer {
         $outputFilePath = realpath($outputFilePath);
 
         if ($this->oTracer != null) {
-            $this->oTracer->traceFileTransformation($inputFilePath, $outputFilePath);
+            $this->oTracer->traceFileTransformation($inputFilePath, $outputFilePath, ($inputCode != $outputCode));
         }
 
         return $outputFilePath;

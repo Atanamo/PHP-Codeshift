@@ -61,13 +61,16 @@ abstract class AbstractTracer {
      *
      * @param string $inputFilePath Path of the file
      * @param string $outputFilePath Path of the result file
+     * @param bool $fileChanged Determines whether or not the file content has changed
      * @return void
      */
-    public function traceFileTransformation($inputFilePath, $outputFilePath) {
+    public function traceFileTransformation($inputFilePath, $outputFilePath, $fileChanged) {
+        $touched = ($fileChanged ? '' : ' (No changes)');
+
         if ($inputFilePath != $outputFilePath) {
-            $this->writeLine("Transformed \"{$inputFilePath}\" --> \"{$outputFilePath}\"");
+            $this->writeLine("Transformed \"{$inputFilePath}\" --> \"{$outputFilePath}\"{$touched}");
         } else {
-            $this->writeLine("Transformed \"{$inputFilePath}\"");
+            $this->writeLine("Transformed \"{$inputFilePath}\"{$touched}");
         }
     }
 

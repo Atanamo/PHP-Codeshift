@@ -20,8 +20,8 @@ class CodemodRunner {
      * and a custom tracer to be used for protocolling.
      * By default, the `SimpleOutputTracer` is used.
      *
-     * @param string $codemodFilePath Optional path of initial codemod file
-     * @param AbstractTracer $oTracer Optional custom tracer to use
+     * @param string|null $codemodFilePath Optional path of initial codemod file
+     * @param AbstractTracer|null $oTracer Optional custom tracer to use
      */
     public function __construct($codemodFilePath=null, AbstractTracer $oTracer=null) {
         $this->oTracer = $oTracer ?: new SimpleOutputTracer();
@@ -67,7 +67,7 @@ class CodemodRunner {
      * Loads the given codemod and prepares the code transformation routines from it.
      *
      * @param string $codemodFilePath Path of codemod file
-     * @throws FileNotFoundException If the codemod is not found
+     * @throws FileNotFoundException If the codemod cannot be not found
      * @throws CorruptCodemodException If the codemod cannot be used for the preparation
      * @return CodeTransformer The final prepared code transformer
      */
@@ -121,9 +121,9 @@ class CodemodRunner {
      * @param string $targetPath Path of the input source file or directory
      * @param string $outputPath Path of the output file or directory
      * @param string[] $ignorePaths List of file or directory paths to exclude from transformation
-     * @throws FileNotFoundException If a codemod is not found
+     * @throws FileNotFoundException If a codemod cannot be found
      * @throws CorruptCodemodException If a codemod cannot be interpreted
-     * @throws CodeParsingException If source file could not be parsed
+     * @throws CodeParsingException If the source file cannot be parsed
      * @return void
      */
     public function execute($targetPath, $outputPath=null, array $ignorePaths=[]) {

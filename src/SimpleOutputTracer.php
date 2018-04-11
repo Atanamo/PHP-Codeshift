@@ -36,7 +36,7 @@ class SimpleOutputTracer extends AbstractTracer {
      * 
      * @uses SimpleOutputTracer::getLine() to format the text as output line.
      *
-     * @param string $text The text to print
+     * @param string $text The text to print. Optional
      * @return void
      */
     public function writeLine($text='') {
@@ -46,7 +46,7 @@ class SimpleOutputTracer extends AbstractTracer {
     /**
      * Prints the given text to STDERR.
      *
-     * @param string $text The text to write
+     * @param string $text The text to write. Optional
      * @return void
      */
     public function writeErrLine($text='') {

@@ -29,9 +29,9 @@ abstract class AbstractCodemod {
 
     /**
      * Constructor.
-     * Optionally takes a tracer object to be used for protocolling.
+     * Optionally takes a tracer to be used for protocolling.
      *
-     * @param AbstractTracer $oTracer The tacer object
+     * @param AbstractTracer|null $oTracer The tacer object
      */
     final public function __construct(AbstractTracer $oTracer=null) {
         $this->oTracer = $oTracer;
@@ -64,7 +64,7 @@ abstract class AbstractCodemod {
 
     /**
      * Sets new information about the code to be transformed.
-     * This allowes to e.g. provide the related file names.
+     * This allows to e.g. provide the related file names.
      *
      * @see AbstractCodemod::getCodeInformation()
      * 

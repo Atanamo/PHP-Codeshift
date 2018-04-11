@@ -11,7 +11,7 @@ abstract class AbstractTracer {
     /**
      * Most inner routine to be used to output/record/write any kind of text.
      *
-     * @param string $text The text to write
+     * @param string $text The text to write. Optional
      * @return void
      */
     abstract public function writeLine($text='');
@@ -19,7 +19,7 @@ abstract class AbstractTracer {
     /**
      * Sub routine to be used to output/record/write any kind of error text.
      *
-     * @param string $text The text to write
+     * @param string $text The text to write. Optional
      * @return void
      */
     public function writeErrLine($text='') {

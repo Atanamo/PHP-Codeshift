@@ -4,7 +4,7 @@ namespace Codeshift;
 
 
 /**
- * Abstraction for logging information while runtime while having a semantic interface.
+ * Abstraction for logging information while runtime, having a semantic interface.
  */
 abstract class AbstractTracer {
 

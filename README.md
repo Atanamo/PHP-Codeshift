@@ -48,7 +48,7 @@ The easiest way to install Codeshift is to add it to your project using [Compose
 3. Execute the Codeshift CLI (Print help):
 
     ```text
-    php vendor/bin/codeshift --help
+    vendor/bin/codeshift --help
     ```
 
 
@@ -58,17 +58,23 @@ CLI usage
 
 To execute a codemod file on a source directory:
 ```text
-php vendor/bin/codeshift --mod=/my/codemod.php --src=/my/project/src
+vendor/bin/codeshift --mod=/my/codemod.php --src=/my/project/src
 ```
 
 Use `--out` to not change original source:
 ```text
-php vendor/bin/codeshift --mod=/my/codemod.php --src=/my/project/src --out=/transformed/src
+vendor/bin/codeshift --mod=/my/codemod.php --src=/my/project/src --out=/transformed/src
 ```
 
 Dump AST to file:
 ```text
-php vendor/bin/codeshift --ast=/my/script.php --out=/my/script_ast.txt
+vendor/bin/codeshift --ast=/my/script.php --out=/my/script_ast.txt
+```
+
+Note:
+If you are on windows, you may need to use `call` to access the binary:
+```text
+call vendor/bin/codeshift ...
 ```
 
 

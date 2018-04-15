@@ -25,6 +25,7 @@ Features
     * Transforming a single source file using a codemod
     * Transforming sources in a directory tree using a codemod
 * Clear API for writing a codemod
+* Clear API for executing codemods programmatically
 
 
 Install & Run
@@ -44,11 +45,31 @@ The easiest way to install Codeshift is to add it to your project using [Compose
     php composer.phar install
     ```
 
-3. Execute the Codeshift CLI:
+3. Execute the Codeshift CLI (Print help):
 
     ```text
     php vendor/bin/codeshift --help
     ```
+
+
+
+Use CLI
+=======
+
+To execute a codemod file on a source directory:
+```text
+php vendor/bin/codeshift --mod=/my/codemod.php --src=/my/project/src
+```
+
+Use `--out` to not change original source:
+```text
+php vendor/bin/codeshift --mod=/my/codemod.php --src=/my/project/src --out=/transformed/src
+```
+
+Dump AST to file:
+```text
+php vendor/bin/codeshift --ast=/my/script.php --out=/my/script_ast.txt
+```
 
 
 

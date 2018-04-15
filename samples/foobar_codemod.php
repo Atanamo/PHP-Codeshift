@@ -23,7 +23,7 @@ class FoobarCodemod extends AbstractCodemod {
         // Init the example visitor
         $visitor = new FooReplaceVisitor();
 
-        // Schedule a traversal run on the code, that uses the visitor
+        // Schedule a traversal run on the code that uses the visitor
         $this->addTraversalTransform($visitor);
     }
 

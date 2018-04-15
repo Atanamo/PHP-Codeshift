@@ -53,8 +53,8 @@ The easiest way to install Codeshift is to add it to your project using [Compose
 
 
 
-Use CLI
-=======
+CLI usage
+=========
 
 To execute a codemod file on a source directory:
 ```text

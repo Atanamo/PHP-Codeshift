@@ -18,5 +18,6 @@
         "psr-4": {
             "Codeshift\\": "src/"
         }
-    }
+    },
+    "bin": ["bin/codeshift"]
 }

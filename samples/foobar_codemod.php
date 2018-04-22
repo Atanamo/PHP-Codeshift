@@ -15,6 +15,7 @@ class FooReplaceVisitor extends NodeVisitorAbstract {
 }
 
 
+// Codemod definition class
 class FoobarCodemod extends AbstractCodemod {
 
     // Example: Traverse with visitor "FooReplaceVisitor"

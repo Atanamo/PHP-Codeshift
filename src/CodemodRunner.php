@@ -13,6 +13,7 @@ class CodemodRunner {
     private $oTracer;
     private $oTransformer;
     private $codemodPaths = [];
+    private $codemodClasses = [];
     private $codemodOptions = [];
 
     /**
@@ -77,6 +78,7 @@ class CodemodRunner {
 
     /**
      * Loads the given codemod and prepares the code transformation routines from it.
+     * Note that a codemod is cached by its given path to avoid redeclarations of its class.
      *
      * @param string $codemodFilePath Path of codemod file
      * @throws FileNotFoundException If the codemod cannot be not found
@@ -85,17 +87,26 @@ class CodemodRunner {
      */
     public function loadCodemodToTransformer($codemodFilePath) {
         $codemodClass = null;
+        $loadedFromCache = false;
 
         // Load codemod class
-        if (file_exists($codemodFilePath)) {
-            $codemodClass = require $codemodFilePath;
+        if (!isset($this->codemodClasses[$codemodFilePath])) {
+            if (file_exists($codemodFilePath)) {
+                $codemodClass = require $codemodFilePath;
 
-            if (!class_exists($codemodClass)) {
-                throw new CorruptCodemodException("Missing exported class of codemod: \"{$codemodFilePath}\"");
+                if (!class_exists($codemodClass)) {
+                    throw new CorruptCodemodException("Missing exported class of codemod: \"{$codemodFilePath}\"");
+                }
             }
+            else {
+                throw new FileNotFoundException("Could not find codemod \"{$codemodFilePath}\"");
+            }
+
+            $this->codemodClasses[$codemodFilePath] = $codemodClass;
         }
         else {
-            throw new FileNotFoundException("Could not find codemod \"{$codemodFilePath}\"");
+            $codemodClass = $this->codemodClasses[$codemodFilePath];
+            $loadedFromCache = true;
         }
 
         // Init the codemod
@@ -115,7 +126,7 @@ class CodemodRunner {
         }
 
         // Log loading
-        $this->oTracer->traceCodemodLoaded($oCodemod, realpath($codemodFilePath));
+        $this->oTracer->traceCodemodLoaded($oCodemod, realpath($codemodFilePath), $loadedFromCache);
 
         return $this->oTransformer;
     }
@@ -123,6 +134,8 @@ class CodemodRunner {
     /**
      * Transforms the source code of the given target path
      * by executing all scheduled codemods (in same order they were added).
+     * 
+     * Each codemod is newly instantiated before executing it. 
      * 
      * If no output path is given, the input source is updated directly by the result source.
      * Else, if an output path is given, the input source remains untouched.

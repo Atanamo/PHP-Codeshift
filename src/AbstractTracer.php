@@ -79,12 +79,17 @@ abstract class AbstractTracer {
      *
      * @param AbstractCodemod $oCodemod Instance of codemod class
      * @param string $codemodPath Path of the codemod file
+     * @param bool $fromCache Determines whether or not the codemod was already loaded
      * @return void
      */
-    public function traceCodemodLoaded(AbstractCodemod $oCodemod, $codemodPath) {
+    public function traceCodemodLoaded(AbstractCodemod $oCodemod, $codemodPath, $fromCache=false) {
         $codemodClassName = get_class($oCodemod);
 
-        $this->writeLine("Loaded codemod \"{$codemodClassName}\" from file \"{$codemodPath}\"");
+        if ($fromCache) {
+            $this->writeLine("Reloaded codemod \"{$codemodClassName}\" from cache\"");
+        } else {
+            $this->writeLine("Loaded codemod \"{$codemodClassName}\" from file \"{$codemodPath}\"");
+        }
     }
 
     /**

@@ -40,7 +40,11 @@ class SimpleOutputTracer extends AbstractTracer {
      * @return void
      */
     public function writeLine($text='') {
-        fwrite(STDOUT, $this->getLine($text));
+        if (is_resource(STDOUT)) {
+            fwrite(STDOUT, $this->getLine($text));
+        } else {
+            echo $this->getLine($text);
+        }
     }
 
     /**
@@ -50,7 +54,11 @@ class SimpleOutputTracer extends AbstractTracer {
      * @return void
      */
     public function writeErrLine($text='') {
-        fwrite(STDERR, $this->getLine($text));
+        if (is_resource(STDERR)) {
+            fwrite(STDERR, $this->getLine($text));
+        } else {
+            echo $this->getLine($text);
+        }
     }
 
 }

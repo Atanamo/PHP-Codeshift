@@ -5,6 +5,7 @@ namespace Codeshift;
 
 /**
  * Simple implementation of the tracing interface that outputs any text to STDOUT/STDERR.
+ * Falls back to `echo`, if no STDOUT/STDERR streams do not exist.
  */
 class SimpleOutputTracer extends AbstractTracer {
 

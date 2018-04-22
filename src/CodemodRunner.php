@@ -13,6 +13,7 @@ class CodemodRunner {
     private $oTracer;
     private $oTransformer;
     private $codemodPaths = [];
+    private $codemodOptions = [];
 
     /**
      * Constructor.
@@ -30,6 +31,17 @@ class CodemodRunner {
         if ($codemodFilePath) {
             $this->addCodemod($codemodFilePath);
         }
+    }
+
+    /**
+     * Sets an arbitrary list of custom options to be passed to each codemod on initialize.
+     * The options can be read within a codemod by using the method {@see AbstractCodemod::getOptions()}.
+     *
+     * @param array $options List of custom options
+     * @return void
+     */
+    public function setCodemodOptions(array $options) {
+        $this->codemodOptions = $options;
     }
 
     /**
@@ -88,7 +100,7 @@ class CodemodRunner {
 
         // Init the codemod
         try {
-            $oCodemod = new $codemodClass($this->oTracer);
+            $oCodemod = new $codemodClass($this->oTracer, $this->codemodOptions);
         }
         catch (\Exception $ex) {
             throw new CorruptCodemodException("Failed to init codemod \"{$codemodFilePath}\" :: {$ex->getMessage()}", null, $ex);

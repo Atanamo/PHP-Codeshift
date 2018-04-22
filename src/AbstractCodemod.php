@@ -26,15 +26,21 @@ abstract class AbstractCodemod {
     private $oTracer;
     private $traversers = [];
     private $codeInfoMap = [];
+    private $customOptions = [];
 
     /**
      * Constructor.
-     * Optionally takes a tracer to be used for protocolling.
+     * Optionally takes a tracer to be used for protocolling and custom options.
      *
+     * @see AbstractCodemod::getTracer()
+     * @see AbstractCodemod::getOptions()
+     * 
      * @param AbstractTracer|null $oTracer The tacer object
+     * @param array|null $options An arbitrary list of custom options
      */
-    final public function __construct(AbstractTracer $oTracer=null) {
+    final public function __construct(AbstractTracer $oTracer=null, array $options=[]) {
         $this->oTracer = $oTracer;
+        $this->customOptions = $options;
         $this->init();
     }
 
@@ -110,6 +116,15 @@ abstract class AbstractCodemod {
      */
     final public function getTracer() {
         return $this->oTracer;
+    }
+
+    /**
+     * Returns the options array the codemod was initialized with.
+     *
+     * @return array The set options array
+     */
+    final public function getOptions() {
+        return $this->customOptions;
     }
 
     /**

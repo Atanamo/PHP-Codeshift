@@ -325,7 +325,7 @@ class CodeTransformer {
         }
 
         if (!is_dir($dirPath)) {
-            mkdir($dirPath, '0777', true);
+            mkdir($dirPath, 0777, true);
         }
 
         return $dirPath;

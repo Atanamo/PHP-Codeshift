@@ -1,5 +1,7 @@
 <?php
 
+namespace MyExampleNamespace;
+
 use Codeshift\AbstractCodemod;
 use PhpParser\{Node, NodeFinder, NodeVisitorAbstract};
 
@@ -58,5 +60,5 @@ class FoobarCodemod extends AbstractCodemod {
 };
 
 
-// Important: Export the codemod class
-return FoobarCodemod;
+// Important: Export the full name of the codemod class
+return '\MyExampleNamespace\FoobarCodemod';

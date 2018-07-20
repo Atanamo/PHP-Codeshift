@@ -44,5 +44,5 @@ class ConstructorRenamingCodemod extends AbstractCodemod {
 };
 
 
-// Important: Export the codemod class
-return ConstructorRenamingCodemod;
+// Important: Export the name of the codemod class
+return 'ConstructorRenamingCodemod';

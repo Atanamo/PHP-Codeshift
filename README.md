@@ -116,12 +116,17 @@ class YourAwesomeCodemod extends AbstractCodemod {
     }
 }
 
-return YourAwesomeCodemod;  // Export of the codemod class
+return 'YourAwesomeCodemod';  // Export name of the codemod class
 ```
 
-Please see source file [`<repo>/src/AbstractCodemod.php`](https://github.com/Atanamo/PHP-Codeshift/blob/master/src/AbstractCodemod.php) for detail documentaion of the `AbstractCodemod` class.
+Please see source file [`<repo>/src/AbstractCodemod.php`](https://github.com/Atanamo/PHP-Codeshift/blob/master/src/AbstractCodemod.php) for detail documentation of the `AbstractCodemod` class.
 
 Also see [`<repo>/samples/foobar_codemod.php`](https://github.com/Atanamo/PHP-Codeshift/blob/master/samples/foobar_codemod.php) for an example codemod.
+
+If you declare the codemod class in an own namespace, do not forget to export/return it correctly:
+```php
+return '\YourNamespace\YourAwesomeCodemod';
+```
 
 
 Ways to transform
@@ -214,7 +219,7 @@ class YourManualCodemod extends AbstractCodemod {
     }
 }
 
-return YourManualCodemod;
+return 'YourManualCodemod';
 ```
 
 

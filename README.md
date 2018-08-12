@@ -2,14 +2,34 @@
 PHP-Codeshift
 =============
 
-PHP-Codeshift* is a lightweight wrapper for the excellent library [PHP-Parser](https://github.com/nikic/PHP-Parser).  
+PHP-Codeshift* is a lightweight wrapper for the excellent library [PHP-Parser](https://github.com/nikic/PHP-Parser).
 It mainly provides an easy-to-use API for running own codemod definition files on multiple PHP source files.
 
 \* Yes, the name is totally stolen from project "[jscodeshift](https://github.com/facebook/jscodeshift)" ;-)
 
 
+
+Table of contents
+=================
+
+- [Requirements](#requirements)
+- [Features](#features)
+- [Install & Run](#install--run)
+- [CLI usage](#cli-usage)
+- [Writing a codemod](#writing-a-codemod)
+    - [Codemod file](#codemod-file)
+    - [Ways to transform](#ways-to-transform)
+    - [Traversal transformation](#traversal-transformation)
+    - [Manual transformation](#manual-transformation)
+- [Programmable API](#programmable-api)
+    - [CodemodRunner](#codemodrunner)
+    - [CodeTransformer](#codetransformer)
+    - [AbstractTracer: Custom logging](#abstracttracer-custom-logging)
+
+
+
 Requirements
-------------
+============
 
 Due to dependencies to [PHP-Parser](https://github.com/nikic/PHP-Parser) 4.x, following PHP versions are required:
 
@@ -17,8 +37,9 @@ Due to dependencies to [PHP-Parser](https://github.com/nikic/PHP-Parser) 4.x, fo
 * Target code to be transformed: PHP 5.2 or higher
 
 
+
 Features
---------
+========
 
 * Simple CLI for:
     * Dumping the AST of a file to stout or an output file
@@ -28,12 +49,13 @@ Features
 * Clear API for executing codemods programmatically
 
 
+
 Install & Run
--------------
+=============
 
 The easiest way to install Codeshift is to add it to your project using [Composer](https://getcomposer.org).
 
-1. Require the library as a dependency using Composer: 
+1. Require the library as a dependency using Composer:
 
     ```text
     php composer.phar require atanamo/php-codeshift
@@ -151,7 +173,7 @@ Traversal transformation means to transform the AST while traversing it.
 The transformation itself is defined by one or more "node visitors".
 The visitors are applied to each node of the AST.
 
-Please see the excellent documentation of PHP-Parser for this:  
+Please see the excellent documentation of PHP-Parser for this:
 [PHP-Parser/doc/component/Walking_the_AST](https://github.com/nikic/PHP-Parser/blob/master/doc/component/Walking_the_AST.markdown)
 
 While PHP-Parser refers to the class `PhpParser\NodeTraverser` for applying a visitor,
@@ -193,7 +215,7 @@ You can use the hook methods `beforeTraversalTransform` and/or `afterTraversalTr
 In that case, the AST as a whole is represented by the statement nodes.
 Therefor, to simplify finding specific nodes of the AST, the PHP-Parser library provides the `PhpParser\NodeFinder` class.
 
-The documentation of PHP-Parser contains some examples of how to use the `NodeFinder`:  
+The documentation of PHP-Parser contains some examples of how to use the `NodeFinder`:
 [PHP-Parser/doc/component/Walking_the_AST#simple-node-finding](https://github.com/nikic/PHP-Parser/blob/master/doc/component/Walking_the_AST.markdown#simple-node-finding)
 
 The following is an example in the context of a codemod.

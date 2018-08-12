@@ -141,9 +141,9 @@ class YourAwesomeCodemod extends AbstractCodemod {
 return 'YourAwesomeCodemod';  // Export name of the codemod class
 ```
 
-Please see source file [`<repo>/src/AbstractCodemod.php`](https://github.com/Atanamo/PHP-Codeshift/blob/master/src/AbstractCodemod.php) for detail documentation of the `AbstractCodemod` class.
+Please see source file [`<codeshift>/src/AbstractCodemod.php`](./src/AbstractCodemod.php) for detail documentation of the `AbstractCodemod` class.
 
-Also see [`<repo>/samples/foobar_codemod.php`](https://github.com/Atanamo/PHP-Codeshift/blob/master/samples/foobar_codemod.php) for an example codemod.
+Also see [`<codeshift>/samples/foobar_codemod.php`](./samples/foobar_codemod.php) for an example codemod.
 
 If you declare the codemod class in an own namespace, do not forget to export/return it correctly:
 ```php
@@ -252,9 +252,9 @@ Programmable API
 While in most cases it will be sufficient to use the CLI, the library offers a few useful classes for manual execution of codemods.
 
 Mainly these are:
-* [`CodemodRunner`](https://github.com/Atanamo/PHP-Codeshift/blob/master/src/CodemodRunner.php)
-* [`CodeTransformer`](https://github.com/Atanamo/PHP-Codeshift/blob/master/src/CodemodRunner.php)
-* [`AbstractTracer`](https://github.com/Atanamo/PHP-Codeshift/blob/master/src/AbstractTracer.php)
+* [`CodemodRunner`](./src/CodemodRunner.php)
+* [`CodeTransformer`](./src/CodemodRunner.php)
+* [`AbstractTracer`](./src/AbstractTracer.php)
 
 
 CodemodRunner

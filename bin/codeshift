@@ -20,7 +20,7 @@ function transformCode($codemodPaths, $srcPath, $outPath, $ignorePaths) {
     }
 }
 
-function dumpFileAST($filePath, $outputPath=null) {
+function dumpFileAST($filePath, &$outputPath=null) {
     try {
         $oTransformer = new \Codeshift\CodeTransformer();
         $astPrint = $oTransformer->dumpFileAST($filePath, $outputPath);

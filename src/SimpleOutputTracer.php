@@ -5,7 +5,7 @@ namespace Codeshift;
 
 /**
  * Simple implementation of the tracing interface that outputs any text to STDOUT/STDERR.
- * Falls back to `echo`, if no STDOUT/STDERR streams do not exist.
+ * Falls back to `echo`, if STDOUT/STDERR streams do not exist.
  */
 class SimpleOutputTracer extends AbstractTracer {
 
@@ -21,7 +21,7 @@ class SimpleOutputTracer extends AbstractTracer {
 
     /**
      * Returns the given text as line to be printed.
-     * 
+     *
      * @uses static::INDENT to indent the text.
      * @uses static::EOL to end the line.
      *
@@ -34,14 +34,14 @@ class SimpleOutputTracer extends AbstractTracer {
 
     /**
      * Prints the given text to STDOUT.
-     * 
+     *
      * @uses SimpleOutputTracer::getLine() to format the text as output line.
      *
      * @param string $text The text to print. Optional
      * @return void
      */
     public function writeLine($text='') {
-        if (is_resource(STDOUT)) {
+        if (defined('STDOUT') AND is_resource(STDOUT)) {
             fwrite(STDOUT, $this->getLine($text));
         } else {
             echo $this->getLine($text);
@@ -55,7 +55,7 @@ class SimpleOutputTracer extends AbstractTracer {
      * @return void
      */
     public function writeErrLine($text='') {
-        if (is_resource(STDERR)) {
+        if (defined('STDERR') AND is_resource(STDERR)) {
             fwrite(STDERR, $this->getLine($text));
         } else {
             echo $this->getLine($text);
